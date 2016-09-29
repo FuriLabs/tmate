@@ -1,0 +1,31 @@
+Source: tmate
+Section: devel
+Priority: optional
+Maintainer: Lucas Kanashiro <kanashiro@debian.org>
+Uploaders: Thiago Ribeiro <thiagitosouza@gmail.com>
+Build-Depends: debhelper (>= 9),
+               pkg-config,
+               libtool,
+               libevent-dev,
+               libncurses-dev,
+               zlib1g-dev,
+               automake,
+               libssh-dev,
+               libmsgpack-dev (>= 1.1.0)
+Standards-Version: 3.9.8
+Homepage: http://tmate.io/
+Vcs-Git: https://alioth.debian.org/anonscm/git/collab-maint/tmate.git
+Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/tmate.git
+
+Package: tmate
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: terminal multiplexer with instant terminal sharing
+ tmate provides an instant pairing solution, allowing you to share a terminal
+ with one or several teammates. Together with a voice call, it's almost like
+ pairing in person. The terminal sharing works by using SSH connections to
+ backend servers maintained by tmate upstream developers; teammates need to be
+ given a randomly-generated token to be able to join a session.
+ .
+ tmate is a modified version of tmux, and uses the same configurations such as
+ keybindings, color schemes etc.

@@ -1,0 +1,52 @@
+tmate (2.2.1-1) unstable; urgency=medium
+
+  * Update and restrict the regex in debian/watch
+  * New upstream version 2.2.1
+  * Refresh patches
+
+ -- Lucas Kanashiro <kanashiro@debian.org>  Thu, 29 Sep 2016 14:51:40 -0300
+
+tmate (2.2.0-2) unstable; urgency=medium
+
+  * debian/control: update my email in Maintainer field
+  * Update Debian packaging copyright
+  * Declare compliance with Debian policy 3.9.8
+  * Remove debian/README.source with unupdated information
+  * debian/rules: enable hardening=+all
+
+ -- Lucas Kanashiro <kanashiro@debian.org>  Sat, 03 Sep 2016 16:31:44 -0300
+
+tmate (2.2.0-1) experimental; urgency=medium
+
+  * Fix spelling error in changelog
+  * Fix Thiago Ribeiro email in uploader field
+  * Imported Upstream version 2.2.0
+  * Remove Files-Excluded from d/copyright
+    + Embemded libraries were removed by upstream
+  * Fix Copyright fields in d/copyright
+  * Add Upstream-Contact in d/copyright
+  * Update upstream copyright
+  * Drop 01_dont-use-embedded-libraries.patch
+  * Refresh patches
+  * Create patch fixing spelling error in binary, silence lintian
+
+ -- Lucas Kanashiro <kanashiro.duarte@gmail.com>  Thu, 10 Mar 2016 01:32:34 -0300
+
+tmate (1.8.10-2) unstable; urgency=medium
+
+  * Use tmate_LDADD instead of tmate_LDFLAGS to fix FTBFS with ld
+    --as-needed (Closes: #793657)
+  * Add DEP3 header in all patches
+  * Add tests to run with autopkgtest
+
+ -- Lucas Kanashiro <kanashiro.duarte@gmail.com>  Sun, 26 Jul 2015 15:41:57 -0300
+
+tmate (1.8.10-1) unstable; urgency=low
+
+  * Initial release (Closes: #787726)
+  * Use system libraries (01_dont-use-embedded-libraries.patch)
+  * Enable subdirs-object in Makefile.am
+    (02_fix-subdirs-objects-in-makefile.patch)
+  * Make some improvements in manpage (03-manpage.patch)
+
+ -- Lucas Kanashiro <kanashiro.duarte@gmail.com>  Wed, 03 Jun 2015 08:57:36 -0300

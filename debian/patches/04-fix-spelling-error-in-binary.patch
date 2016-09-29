@@ -1,0 +1,15 @@
+Description: Fix spelling error in binary
+Author: Lucas Kanashiro <kanashiro.duarte@gmail.com>
+Last-Updated: 2016-03-10
+
+--- a/tmate-ssh-client.c
++++ b/tmate-ssh-client.c
+@@ -345,7 +345,7 @@ static void on_ssh_client_event(struct t
+ 					ssh_get_error(session));
+ 			return;
+ 		case SSH_OK:
+-			tmate_debug("Session opened, initalizing tmate");
++			tmate_debug("Session opened, initializing tmate");
+ 			client->state = SSH_BOOTSTRAP;
+ 			/* fall through */
+ 		}
