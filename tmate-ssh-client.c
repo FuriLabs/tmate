@@ -1,6 +1,8 @@
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <event.h>
 #include <assert.h>
 
@@ -165,22 +167,48 @@ static void request_passphrase(struct tmate_ssh_client *client)
 	data->password_cb_private = client;
 }
 
+#define KEEPALIVE_CNT		3
+#define KEEPALIVE_IDLE		20
+#define KEEPALIVE_INTVL		10
+
+static void setup_socket(int fd)
+{
+#define SSO(level, optname, val) ({							\
+	int _flag = val;								\
+	if (setsockopt(fd, level, optname, &(_flag), sizeof(int)) < 0) {		\
+		tmate_warn("setsockopt(" #level ", " #optname ", %d) failed", val);	\
+	}										\
+})
+
+	SSO(IPPROTO_TCP, TCP_NODELAY, 1);
+	SSO(SOL_SOCKET, SO_KEEPALIVE, 1);
+#ifdef TCP_KEEPALIVE
+	SSO(IPPROTO_TCP, TCP_KEEPALIVE, KEEPALIVE_IDLE);
+#endif
+#ifdef TCP_KEEPCNT
+	SSO(IPPROTO_TCP, TCP_KEEPCNT, KEEPALIVE_CNT);
+#endif
+#ifdef TCP_KEEPIDLE
+	SSO(IPPROTO_TCP, TCP_KEEPIDLE, KEEPALIVE_IDLE);
+#endif
+#ifdef TCP_KEEPINTVL
+	SSO(IPPROTO_TCP, TCP_KEEPINTVL, KEEPALIVE_INTVL);
+#endif
+#undef SSO
+}
+
 static void init_conn_fd(struct tmate_ssh_client *client)
 {
+	int fd;
+
 	if (client->has_init_conn_fd)
 		return;
 
-	if (ssh_get_fd(client->session) < 0)
+	if ((fd = ssh_get_fd(client->session)) < 0)
 		return;
 
-	{
-	int flag = 1;
-	setsockopt(ssh_get_fd(client->session), IPPROTO_TCP,
-		   TCP_NODELAY, &flag, sizeof(flag));
-	}
-
-	event_set(&client->ev_ssh, ssh_get_fd(client->session),
-		  EV_READ | EV_PERSIST, __on_ssh_client_event, client);
+	setup_socket(fd);
+	event_set(&client->ev_ssh, fd, EV_READ | EV_PERSIST, __on_ssh_client_event, client);
 	event_add(&client->ev_ssh, NULL);
 
 	client->has_init_conn_fd = true;
@@ -190,7 +218,7 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 {
 	char *identity;
 	ssh_key pubkey;
-	int key_type;
+	enum ssh_keytypes_e key_type;
 	unsigned char *hash;
 	ssize_t hash_len;
 	char *hash_str;
@@ -213,12 +241,6 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 
 		ssh_set_callbacks(session, &client->ssh_callbacks);
 
-		client->channel = channel = ssh_channel_new(session);
-		if (!channel) {
-			tmate_fatal("cannot initialize");
-			return;
-		}
-
 		ssh_set_blocking(session, 0);
 		ssh_options_set(session, SSH_OPTIONS_HOST, client->server_ip);
 		ssh_options_set(session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
@@ -233,6 +255,9 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 			 * regular one doesn't.
 			 */
 			ssh_options_set(session, SSH_OPTIONS_IDENTITY, identity);
+
+			/* Do not use keys from ssh-agent. */
+			unsetenv("SSH_AUTH_SOCK");
 			free(identity);
 		}
 
@@ -257,15 +282,22 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 		}
 
 	case SSH_AUTH_SERVER:
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 9, 0)
+		if (ssh_get_server_publickey(session, &pubkey) < 0)
+			tmate_fatal("ssh_get_server_publickey");
+#else
 		if (ssh_get_publickey(session, &pubkey) < 0)
 			tmate_fatal("ssh_get_publickey");
+#endif
 
-		if (ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_MD5, &hash, &hash_len) < 0) {
+		if (ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_SHA256,
+					   &hash, &hash_len) < 0) {
 			kill_ssh_client(client, "Cannot authenticate server");
 			return;
 		}
 
-		hash_str = ssh_get_hexa(hash, hash_len);
+		hash_str = ssh_get_fingerprint_hash(SSH_PUBLICKEY_HASH_SHA256,
+						    hash, hash_len);
 		if (!hash_str)
 			tmate_fatal("malloc failed");
 
@@ -277,8 +309,17 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 						"tmate-server-rsa-fingerprint");
 			break;
 		case SSH_KEYTYPE_ECDSA:
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 9, 0)
+		case SSH_KEYTYPE_ECDSA_P256:
+		case SSH_KEYTYPE_ECDSA_P384:
+		case SSH_KEYTYPE_ECDSA_P521:
+#endif
 			server_hash_str = options_get_string(global_options,
 						"tmate-server-ecdsa-fingerprint");
+			break;
+		case SSH_KEYTYPE_ED25519:
+			server_hash_str = options_get_string(global_options,
+						"tmate-server-ed25519-fingerprint");
 			break;
 		default:
 			server_hash_str = "";
@@ -319,7 +360,7 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 				request_passphrase(client);
 			} else {
 				kill_ssh_client(client, "SSH keys not found."
-				" Run 'ssh-keygen' to create keys and try again.");
+				" Run 'ssh-keygen' to create keys.");
 				return;
 			}
 
@@ -333,6 +374,12 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 		case SSH_AUTH_SUCCESS:
 			tmate_debug("Auth successful");
 			client->state = SSH_OPEN_CHANNEL;
+
+			client->channel = channel = ssh_channel_new(session);
+			if (!channel) {
+				tmate_fatal("cannot initialize");
+				return;
+			}
 			/* fall through */
 		}
 
