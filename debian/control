@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Lucas Kanashiro <kanashiro@debian.org>
 Uploaders: Thiago Ribeiro <thiagitosouza@gmail.com>
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper-compat (= 12),
                pkg-config,
                libtool,
                libevent-dev,
