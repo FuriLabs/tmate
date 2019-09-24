@@ -1,25 +1,17 @@
-Description: Fix manpage
- The manpage is the same of tmux's manpage, this patch try to fix it.
-Author: Lucas Kanashiro <kanashiro.duarte@gmail.com>
-Last-Updated: 2016-03-10
+Description: Improve manpage
+Author: Lucas Kanashiro <kanashiro@debian.org>
+Last-Updated: 2019-09-24
 
 --- a/tmux.1
 +++ b/tmux.1
-@@ -15,14 +15,15 @@
- .\" OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- .\"
- .Dd $Mdocdate: March 25 2013 $
--.Dt TMUX 1
-+.Dt TMATE 1
+@@ -19,10 +19,11 @@
  .Os
  .Sh NAME
--.Nm tmux
+ .Nm tmate
 -.Nd terminal multiplexer
-+.Nm tmate
 +.Nd terminal multiplexer with instant terminal sharing
  .Sh SYNOPSIS
--.Nm tmux
-+.Nm tmate
+ .Nm tmate
  .Bk -words
 +.Op show-messages
  .Op Fl 2CluvV
@@ -53,7 +45,7 @@ Last-Updated: 2016-03-10
  .Pp
  When
  .Nm
-@@ -48,7 +60,8 @@ with a single
+@@ -48,7 +60,8 @@
  .Em window
  and displays it on screen.
  A status line at the bottom of the screen
@@ -63,216 +55,3 @@ Last-Updated: 2016-03-10
  and is used to enter interactive commands.
  .Pp
  A session is a single collection of
-@@ -78,9 +91,9 @@ connection timeout) or intentional detac
- .Ql C-b d
- key strokes).
- .Nm
--may be reattached using:
-+may be started using:
- .Pp
--.Dl $ tmux attach
-+.Dl $ tmate
- .Pp
- In
- .Nm ,
-@@ -94,6 +107,10 @@ socket in
- .Pp
- The options are as follows:
- .Bl -tag -width "XXXXXXXXXXXX"
-+.It show-messages
-+to see log messages of
-+.Nm
-+, including the ssh connection string.
- .It Fl 2
- Force
- .Nm
-@@ -124,9 +141,9 @@ Specify an alternative configuration fil
- By default,
- .Nm
- loads the system configuration file from
--.Pa @SYSCONFDIR@/tmux.conf ,
-+.Pa @SYSCONFDIR@/tmate.conf ,
- if present, then looks for a user configuration file at
--.Pa ~/.tmux.conf .
-+.Pa ~/.tmate.conf or ~/.tmux.conf .
- .Pp
- The configuration file is a set of
- .Nm
-@@ -143,7 +160,7 @@ session created, and continues to proces
- .It Fl L Ar socket-name
- .Nm
- stores the server socket in a directory under
--.Ev TMUX_TMPDIR
-+.Ev TMATE_TMPDIR
- or
- .Pa /tmp
- if it is unset.
-@@ -167,7 +184,7 @@ directories are missing).
- .It Fl l
- Behave as a login shell.
- This flag currently has no effect and is for compatibility with other shells
--when using tmux as a login shell.
-+when using tmate as a login shell.
- .It Fl S Ar socket-path
- Specify a full alternative path to the server socket.
- If
-@@ -199,9 +216,9 @@ characters to the terminal it is running
- Request verbose logging.
- This option may be specified multiple times for increasing verbosity.
- Log messages will be saved into
--.Pa tmux-client-PID.log
-+.Pa tmate-client-PID.log
- and
--.Pa tmux-server-PID.log
-+.Pa tmate-server-PID.log
- files in the current directory, where
- .Em PID
- is the PID of the server or client process.
-@@ -552,7 +569,7 @@ in the
- .Nm
- server.
- The pane ID is passed to the child process of the pane in the
--.Ev TMUX_PANE
-+.Ev TMATE_PANE
- environment variable.
- IDs may be displayed using the
- .Ql session_id ,
-@@ -597,7 +614,7 @@ to be given as multiple arguments and ex
- This can avoid issues with shell quoting.
- For example:
- .Bd -literal -offset indent
--$ tmux new-window vi /etc/passwd
-+$ tmate new-window vi /etc/passwd
- .Ed
- .Pp
- Will run
-@@ -616,7 +633,7 @@ bind-key F1 set-window-option force-widt
- Or if using
- .Xr sh 1 :
- .Bd -literal -offset indent
--$ tmux bind-key F1 set-window-option force-width 81
-+$ tmate bind-key F1 set-window-option force-width 81
- .Ed
- .Pp
- Multiple commands may be specified together as part of a
-@@ -641,18 +658,18 @@ set-window-option -t:0 monitor-activity
- 
- new-window ; split-window -d
- 
--bind-key R source-file ~/.tmux.conf \e; \e
-+bind-key R source-file ~/.tmate.conf \e; \e
- 	display-message "source-file done"
- .Ed
- .Pp
- Or from
- .Xr sh 1 :
- .Bd -literal -offset indent
--$ tmux kill-window -t :1
-+$ tmate kill-window -t :1
- 
--$ tmux new-window \e; split-window -d
-+$ tmate new-window \e; split-window -d
- 
--$ tmux new-session -d 'vi /etc/passwd' \e; split-window -d \e; attach
-+$ tmate new-session -d 'vi /etc/passwd' \e; split-window -d \e; attach
- .Ed
- .Sh CLIENTS AND SESSIONS
- The
-@@ -1236,10 +1253,10 @@ command displays the layout of each wind
- .Ic select-layout .
- For example:
- .Bd -literal -offset indent
--$ tmux list-windows
-+$ tmate list-windows
- 0: ksh [159x48]
-     layout: bb62,159x48,0,0{79x48,0,0,79x48,80,0}
--$ tmux select-layout bb62,159x48,0,0{79x48,0,0,79x48,80,0}
-+$ tmate select-layout bb62,159x48,0,0{79x48,0,0,79x48,80,0}
- .Ed
- .Pp
- .Nm
-@@ -2307,8 +2324,8 @@ User options may have any name, so long
- and be set to any string.
- For example:
- .Bd -literal -offset indent
--$ tmux setw -q @foo "abc123"
--$ tmux showw -v @foo
-+$ tmate setw -q @foo "abc123"
-+$ tmate showw -v @foo
- abc123
- .Ed
- .Pp
-@@ -2394,7 +2411,7 @@ to work correctly, this
- .Em must
- be set to
- .Ql screen ,
--.Ql tmux
-+.Ql tmate
- or a derivative of them.
- .It Ic escape-time Ar time
- Set the time in milliseconds for which
-@@ -3600,7 +3617,7 @@ session option may be used to update the
- when a new session is created or an old reattached.
- .Nm
- also initialises the
--.Ev TMUX
-+.Ev TMATE
- variable with some internal information to allow commands to be executed
- from inside, and the
- .Ev TERM
-@@ -4158,12 +4175,12 @@ was renamed to
- .Ar name .
- .El
- .Sh FILES
--.Bl -tag -width "@SYSCONFDIR@/tmux.confXXX" -compact
--.It Pa ~/.tmux.conf
-+.Bl -tag -width "@SYSCONFDIR@/tmate.confXXX" -compact
-+.It Pa ~/.tmate.conf
- Default
- .Nm
- configuration file.
--.It Pa @SYSCONFDIR@/tmux.conf
-+.It Pa @SYSCONFDIR@/tmate.conf
- System-wide configuration file.
- .El
- .Sh EXAMPLES
-@@ -4172,18 +4189,18 @@ To create a new
- session running
- .Xr vi 1 :
- .Pp
--.Dl $ tmux new-session vi
-+.Dl $ tmate new-session vi
- .Pp
- Most commands have a shorter form, known as an alias.
- For new-session, this is
- .Ic new :
- .Pp
--.Dl $ tmux new vi
-+.Dl $ tmate new vi
- .Pp
- Alternatively, the shortest unambiguous form of a command is accepted.
- If there are several options, they are listed:
- .Bd -literal -offset indent
--$ tmux n
-+$ tmate n
- ambiguous command: n, could be: new-session, new-window, next-window
- .Ed
- .Pp
-@@ -4213,7 +4230,7 @@ A session may be detached using
- .Xr ssh 1
- disconnection) and reattached with:
- .Pp
--.Dl $ tmux attach-session
-+.Dl $ tmate attach-session
- .Pp
- Typing
- .Ql C-b \&?
-@@ -4225,7 +4242,7 @@ to exit from it.
- Commands to be run when the
- .Nm
- server is started may be placed in the
--.Pa ~/.tmux.conf
-+.Pa ~/.tmate.conf
- configuration file.
- Common examples include:
- .Pp

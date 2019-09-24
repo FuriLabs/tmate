@@ -4,7 +4,7 @@ Last-Updated: 2016-03-10
 
 --- a/tmate-ssh-client.c
 +++ b/tmate-ssh-client.c
-@@ -345,7 +345,7 @@ static void on_ssh_client_event(struct t
+@@ -392,7 +392,7 @@
  					ssh_get_error(session));
  			return;
  		case SSH_OK:
