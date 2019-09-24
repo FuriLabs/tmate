@@ -1,3 +1,9 @@
+tmate (2.3.0-1) UNRELEASED; urgency=medium
+
+  * New upstream version 2.3.0
+
+ -- Lucas Kanashiro <kanashiro@debian.org>  Tue, 24 Sep 2019 04:44:40 -0300
+
 tmate (2.2.1-1) unstable; urgency=medium
 
   * Update and restrict the regex in debian/watch
