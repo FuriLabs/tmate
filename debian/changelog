@@ -1,4 +1,4 @@
-tmate (2.3.0-1) UNRELEASED; urgency=medium
+tmate (2.3.0-1) unstable; urgency=medium
 
   * New upstream version 2.3.0 (Closes: #939672)
   * b-d on debhelper-compat
