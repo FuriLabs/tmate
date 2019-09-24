@@ -1,8 +1,12 @@
 tmate (2.3.0-1) UNRELEASED; urgency=medium
 
-  * New upstream version 2.3.0
+  * New upstream version 2.3.0 (Closes: #939672)
+  * b-d on debhelper-compat
+  * d/control: update VCS links
+  * Declare compliance with Debian Policy 4.4.0
+  * Refresh patches
 
- -- Lucas Kanashiro <kanashiro@debian.org>  Tue, 24 Sep 2019 04:44:40 -0300
+ -- Lucas Kanashiro <kanashiro@debian.org>  Tue, 24 Sep 2019 05:57:11 -0300
 
 tmate (2.2.1-1) unstable; urgency=medium
 
