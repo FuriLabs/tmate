@@ -231,7 +231,7 @@ Copyright: 2015, Joerg Jung <jung@openbsd.org>
 License: ISC
 
 Files: debian/*
-Copyright: 2015-2016, Lucas Kanashiro <kanashiro@debian.org>
+Copyright: 2015-2019, Lucas Kanashiro <kanashiro@debian.org>
 License: Expat
 
 License: BSD-2
