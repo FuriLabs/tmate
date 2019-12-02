@@ -1,4 +1,4 @@
-tmate (2.4.0-1) UNRELEASED; urgency=medium
+tmate (2.4.0-1) unstable; urgency=medium
 
   * New upstream version 2.4.0
   * debian/copyright: update upstream files entries
@@ -6,7 +6,7 @@ tmate (2.4.0-1) UNRELEASED; urgency=medium
   * Declare compliance with Debian Policy 4.4.1.2
   * Refresh patches
 
- -- Lucas Kanashiro <lucas.kanashiro@canonical.com>  Mon, 02 Dec 2019 18:47:40 -0300
+ -- Lucas Kanashiro <kanashiro@debian.org>  Mon, 02 Dec 2019 18:47:40 -0300
 
 tmate (2.3.0-1) unstable; urgency=medium
 
