@@ -959,6 +959,44 @@ const struct options_table_entry options_table[] = {
 	  .scope = OPTIONS_TABLE_SERVER,
 	  .default_str = ""
 	},
+
+	{ .name = "tmate-api-key",
+	  .type = OPTIONS_TABLE_STRING,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .default_str = ""
+	},
+
+	{ .name = "tmate-session-name",
+	  .type = OPTIONS_TABLE_STRING,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .default_str = ""
+	},
+
+	{ .name = "tmate-session-name-ro",
+	  .type = OPTIONS_TABLE_STRING,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .default_str = ""
+	},
+
+	{ .name = "tmate-authorized-keys",
+	  .type = OPTIONS_TABLE_STRING,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .default_str = ""
+	},
+
+	{ .name = "tmate-set",
+	  .type = OPTIONS_TABLE_STRING,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .default_str = ""
+	},
+
+	{ .name = "tmate-foreground-restart",
+	  .type = OPTIONS_TABLE_NUMBER,
+	  .scope = OPTIONS_TABLE_SERVER,
+	  .minimum = 0,
+	  .maximum = 1,
+	  .default_num = 1
+	},
 #endif
 
 	{ .name = NULL }

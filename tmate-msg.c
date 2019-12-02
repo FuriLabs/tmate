@@ -50,18 +50,38 @@ static void tmate_status_message_client(struct client *c, const char *message)
 	recalculate_sizes();
 }
 
+static void tmate_status_message_session(const char *message)
+{
+	if (tmate_foreground)
+		return;
+
+	struct session *s;
+	s = RB_MIN(sessions, &sessions);
+	if (!s) {
+		cfg_add_cause("%s", message);
+		return;
+	}
+
+	struct window_pane *wp;
+	wp = s->curw->window->active;
+	if (wp->mode == &window_copy_mode)
+		window_copy_add(wp, "%s", message);
+}
+
 void __tmate_status_message(const char *fmt, va_list ap)
 {
 	struct client *c;
 	char *message;
 
 	xvasprintf(&message, fmt, ap);
-	tmate_debug("%s", message);
+	tmate_info("%s", message);
 
 	TAILQ_FOREACH(c, &clients, entry) {
 		if (c && !(c->flags & CLIENT_READONLY))
 			tmate_status_message_client(c, message);
 	}
+
+	tmate_status_message_session(message);
 
 	free(message);
 }

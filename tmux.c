@@ -48,16 +48,29 @@ __dead void	 usage(void);
 static char	*make_label(const char *);
 
 #ifndef HAVE___PROGNAME
-char      *__progname = (char *) "tmux";
+char      *__progname = (char *) "tmate";
+#endif
+
+#ifdef TMATE
+int tmate_foreground;
 #endif
 
 __dead void
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: %s [-2CluvV] [-c shell-command] [-f file] [-L socket-name]\n"
-	    "            [-S socket-path] [command [flags]]\n",
-	    __progname);
+	    "Usage: %s [options] [tmux-command [flags]]\n"
+	    "\n"
+	    "Basic options:\n"
+	    " -n <name>    specify the session token instead of getting a random one\n"
+	    " -r <name>    same, but for the read-only token\n"
+	    " -k <key>     specify an api-key, necessary for using named sessions on tmate.io\n"
+	    " -F           set the foreground mode, useful for setting remote access\n"
+	    " -f <path>    set the config file path\n"
+	    " -S <path>    set the socket path, useful to issue commands to a running tmate instance\n"
+	    " -v           set verbosity (can be repeated)\n"
+	    " -V           print version\n"
+	    ,__progname);
 	exit(1);
 }
 
@@ -198,6 +211,29 @@ find_home(void)
 	return (home);
 }
 
+#ifdef TMATE
+static char *api_key;
+static char *session_name;
+static char *session_name_ro;
+static char *authorized_keys;
+
+void tmate_load_cli_options(void)
+{
+#define SET_OPT(name, val) ({\
+	if (val) { \
+		run_headless_command(3, (const char *[]){"set-option", name, val}, DEFER_ERRORS_CFG, NULL); \
+		free(val); \
+		val = NULL; \
+	} \
+})
+	SET_OPT("tmate-api-key",         api_key);
+	SET_OPT("tmate-session-name",    session_name);
+	SET_OPT("tmate-session-name-ro", session_name_ro);
+	SET_OPT("tmate-authorized-keys", authorized_keys);
+#undef SET_OPT
+}
+#endif
+
 int
 main(int argc, char **argv)
 {
@@ -205,12 +241,12 @@ main(int argc, char **argv)
 	const char	*s;
 	int		 opt, flags, keys;
 
-	if (setlocale(LC_CTYPE, "en_US.UTF-8") == NULL) {
+	if (setlocale(LC_CTYPE, "en_US.UTF-8") == NULL &&
+	    setlocale(LC_CTYPE, "C.UTF-8") == NULL) {
 		if (setlocale(LC_CTYPE, "") == NULL)
 			errx(1, "invalid LC_ALL, LC_CTYPE or LANG");
 		s = nl_langinfo(CODESET);
-		if (strcasecmp(s, "UTF-8") != 0 &&
-		    strcasecmp(s, "UTF8") != 0)
+		if (strcasecmp(s, "UTF-8") != 0 && strcasecmp(s, "UTF8") != 0)
 			errx(1, "need UTF-8 locale (LC_CTYPE) but have %s", s);
 	}
 
@@ -228,7 +264,7 @@ main(int argc, char **argv)
 #endif
 
 	label = path = NULL;
-	while ((opt = getopt(argc, argv, "2c:Cdf:lL:qS:uUVv")) != -1) {
+	while ((opt = getopt(argc, argv, "h2c:CdFf:lL:qS:uUVvk:n:r:a:")) != -1) {
 		switch (opt) {
 		case '2':
 			flags |= CLIENT_256COLOURS;
@@ -268,6 +304,24 @@ main(int argc, char **argv)
 		case 'v':
 			log_add_level();
 			break;
+		case 'F':
+			tmate_foreground = 1;
+			log_add_level();
+			unsetenv("TMUX");
+			break;
+		case 'k':
+			api_key = xstrdup(optarg);
+			break;
+		case 'n':
+			session_name = xstrdup(optarg);
+			break;
+		case 'r':
+			session_name_ro = xstrdup(optarg);
+			break;
+		case 'a':
+			authorized_keys = xstrdup(optarg);
+			break;
+		case 'h':
 		default:
 			usage();
 		}

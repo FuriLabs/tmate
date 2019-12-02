@@ -86,7 +86,6 @@ static void on_ssh_auth_server_complete(struct tmate_ssh_client *connected_clien
 		if (client == connected_client)
 			continue;
 
-		assert(!client->has_encoder);
 		kill_ssh_client(client, NULL);
 	}
 }
@@ -115,7 +114,7 @@ static int passphrase_callback(__unused const char *prompt, char *buf, size_t le
 	client->tmate_session->need_passphrase = 1;
 
 	if (client->tmate_session->passphrase)
-		strncpy(buf, client->tmate_session->passphrase, len);
+		strlcpy(buf, client->tmate_session->passphrase, len);
 	else
 		strcpy(buf, "");
 
@@ -167,32 +166,64 @@ static void request_passphrase(struct tmate_ssh_client *client)
 	data->password_cb_private = client;
 }
 
-#define KEEPALIVE_CNT		3
-#define KEEPALIVE_IDLE		20
-#define KEEPALIVE_INTVL		10
+#define KEEPALIVE_IDLE		30
+#define KEEPALIVE_CNT		4
+#define KEEPALIVE_INTVL		11
+#define WRITE_TIMEOUT		80
 
-static void setup_socket(int fd)
+static void tune_socket_opts(int fd)
 {
 #define SSO(level, optname, val) ({							\
 	int _flag = val;								\
 	if (setsockopt(fd, level, optname, &(_flag), sizeof(int)) < 0) {		\
-		tmate_warn("setsockopt(" #level ", " #optname ", %d) failed", val);	\
+		/* If the connection has been closed, we'll get EINVAL */		\
+		if (errno != EINVAL)							\
+			tmate_info("setsockopt(" #level ", " #optname ", %d) failed %s", val, strerror(errno));	\
 	}										\
 })
 
 	SSO(IPPROTO_TCP, TCP_NODELAY, 1);
 	SSO(SOL_SOCKET, SO_KEEPALIVE, 1);
 #ifdef TCP_KEEPALIVE
+	/*
+	 * The TCP_KEEPALIVE options enable to specify the amount of time, in
+	 * seconds, that the connection must be idle before keepalive probes
+	 * (if enabled) are sent.
+	 */
 	SSO(IPPROTO_TCP, TCP_KEEPALIVE, KEEPALIVE_IDLE);
 #endif
-#ifdef TCP_KEEPCNT
-	SSO(IPPROTO_TCP, TCP_KEEPCNT, KEEPALIVE_CNT);
-#endif
 #ifdef TCP_KEEPIDLE
+	/*
+	 * Same as TCP_KEEPALIVE, but on different systems
+	 */
 	SSO(IPPROTO_TCP, TCP_KEEPIDLE, KEEPALIVE_IDLE);
 #endif
+#ifdef TCP_KEEPCNT
+	/*
+	 * When keepalive probes are enabled, this option will set the number
+	 * of times a keepalive probe should be repeated if the peer is not
+	 * responding. After this many probes, the connection will be closed.
+	 */
+	SSO(IPPROTO_TCP, TCP_KEEPCNT, KEEPALIVE_CNT);
+#endif
 #ifdef TCP_KEEPINTVL
+	/*
+	 * When keepalive probes are enabled, this option will set the amount
+	 * of time in seconds between successive keepalives sent to probe an
+	 * unresponsive peer.
+	 */
 	SSO(IPPROTO_TCP, TCP_KEEPINTVL, KEEPALIVE_INTVL);
+#endif
+#ifdef TCP_USER_TIMEOUT
+	/*
+	 * This option takes an unsigned int as an argument.  When the
+	 * value is greater than 0, it specifies the maximum amount of
+	 * time in milliseconds that transmitted data may remain
+	 * unacknowledged before TCP will forcibly close the
+	 * corresponding connection and return ETIMEDOUT to the
+	 * application.
+	 */
+	SSO(IPPROTO_TCP, TCP_USER_TIMEOUT, 1000*WRITE_TIMEOUT);
 #endif
 #undef SSO
 }
@@ -201,45 +232,39 @@ static void init_conn_fd(struct tmate_ssh_client *client)
 {
 	int fd;
 
-	if (client->has_init_conn_fd)
+	if (client->ev_ssh)
 		return;
 
 	if ((fd = ssh_get_fd(client->session)) < 0)
 		return;
 
-	setup_socket(fd);
-	event_set(&client->ev_ssh, fd, EV_READ | EV_PERSIST, __on_ssh_client_event, client);
-	event_add(&client->ev_ssh, NULL);
+	tune_socket_opts(fd);
 
-	client->has_init_conn_fd = true;
+	client->ev_ssh = event_new(client->tmate_session->ev_base, fd,
+				   EV_READ | EV_PERSIST,
+				   __on_ssh_client_event, client);
+	if (!client->ev_ssh)
+		tmate_fatal("out of memory");
+	event_add(client->ev_ssh, NULL);
 }
 
 static void on_ssh_client_event(struct tmate_ssh_client *client)
 {
-	char *identity;
-	ssh_key pubkey;
-	enum ssh_keytypes_e key_type;
-	unsigned char *hash;
-	ssize_t hash_len;
-	char *hash_str;
-	const char *server_hash_str;
-	int match;
-
-	int verbosity = SSH_LOG_NOLOG + log_get_level();
-	int port = options_get_number(global_options, "tmate-server-port");
-
 	ssh_session session = client->session;
 	ssh_channel channel = client->channel;
 
 	switch (client->state) {
-	case SSH_INIT:
+	case SSH_INIT: {
 		client->session = session = ssh_new();
 		if (!session) {
-			tmate_fatal("cannot initialize");
+			tmate_fatal("cannot ssh_new()");
 			return;
 		}
 
 		ssh_set_callbacks(session, &client->ssh_callbacks);
+
+		int verbosity = SSH_LOG_NOLOG + log_get_level();
+		int port = options_get_number(global_options, "tmate-server-port");
 
 		ssh_set_blocking(session, 0);
 		ssh_options_set(session, SSH_OPTIONS_HOST, client->server_ip);
@@ -248,6 +273,7 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 		ssh_options_set(session, SSH_OPTIONS_USER, "tmate");
 		ssh_options_set(session, SSH_OPTIONS_COMPRESSION, "yes");
 
+		char *identity;
 		if ((identity = get_identity())) {
 			/*
 			 * FIXME libssh will continue with the next set of
@@ -262,7 +288,8 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 		}
 
 		client->state = SSH_CONNECT;
-		/* fall through */
+	}
+	// fall through
 
 	case SSH_CONNECT:
 		switch (ssh_connect(session)) {
@@ -278,10 +305,18 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 
 			tmate_debug("Establishing connection to %s", client->server_ip);
 			client->state = SSH_AUTH_SERVER;
-			/* fall through */
 		}
+		// fall through
 
-	case SSH_AUTH_SERVER:
+	case SSH_AUTH_SERVER: {
+		ssh_key pubkey;
+		enum ssh_keytypes_e key_type;
+		unsigned char *hash;
+		ssize_t hash_len;
+		char *hash_str;
+		const char *server_hash_str;
+		int match;
+
 #if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 9, 0)
 		if (ssh_get_server_publickey(session, &pubkey) < 0)
 			tmate_fatal("ssh_get_server_publickey");
@@ -344,13 +379,31 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 		 */
 		tmate_debug("Connected to %s", client->server_ip);
 		on_ssh_auth_server_complete(client);
-		client->state = SSH_AUTH_CLIENT;
 
-		/* fall through */
+		client->state = SSH_AUTH_CLIENT_NONE;
+	}
+		// fall through
 
-	case SSH_AUTH_CLIENT:
+	case SSH_AUTH_CLIENT_NONE:
+		switch (ssh_userauth_none(session, NULL)) {
+		case SSH_AUTH_AGAIN:
+			return;
+		case SSH_AUTH_ERROR:
+			kill_ssh_client(client, "Auth error: %s", ssh_get_error(session));
+			return;
+		case SSH_AUTH_SUCCESS:
+			tmate_debug("Auth successful via none method");
+			client->state = SSH_NEW_CHANNEL;
+			goto SSH_NEW_CHANNEL;
+		case SSH_AUTH_PARTIAL:
+		case SSH_AUTH_DENIED:
+			client->state = SSH_AUTH_CLIENT_PUBKEY;
+		}
+		// fall through
+
+	case SSH_AUTH_CLIENT_PUBKEY:
 		client->tried_passphrase = client->tmate_session->passphrase;
-		switch (ssh_userauth_autopubkey(session, client->tried_passphrase)) {
+		switch (ssh_userauth_publickey_auto(session, NULL, client->tried_passphrase)) {
 		case SSH_AUTH_AGAIN:
 			return;
 		case SSH_AUTH_PARTIAL:
@@ -372,16 +425,20 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 			kill_ssh_client(client, "Auth error: %s", ssh_get_error(session));
 			return;
 		case SSH_AUTH_SUCCESS:
-			tmate_debug("Auth successful");
-			client->state = SSH_OPEN_CHANNEL;
-
-			client->channel = channel = ssh_channel_new(session);
-			if (!channel) {
-				tmate_fatal("cannot initialize");
-				return;
-			}
-			/* fall through */
+			tmate_debug("Auth successful with pubkey");
+			client->state = SSH_NEW_CHANNEL;
 		}
+		// fall through
+
+SSH_NEW_CHANNEL:
+	case SSH_NEW_CHANNEL:
+		client->channel = channel = ssh_channel_new(session);
+		if (!channel) {
+			tmate_fatal("cannot ssh_channel_new()");
+			return;
+		}
+		client->state = SSH_OPEN_CHANNEL;
+		// fall through
 
 	case SSH_OPEN_CHANNEL:
 		switch (ssh_channel_open_session(channel)) {
@@ -394,8 +451,8 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 		case SSH_OK:
 			tmate_debug("Session opened, initalizing tmate");
 			client->state = SSH_BOOTSTRAP;
-			/* fall through */
 		}
+		// fall through
 
 	case SSH_BOOTSTRAP:
 		switch (ssh_channel_request_subsystem(channel, "tmate")) {
@@ -423,9 +480,8 @@ static void on_ssh_client_event(struct tmate_ssh_client *client)
 
 			free(client->tmate_session->last_server_ip);
 			client->tmate_session->last_server_ip = xstrdup(client->server_ip);
-
-			/* fall through */
 		}
+		// fall through
 
 	case SSH_READY:
 		read_channel(client);
@@ -456,9 +512,10 @@ static void kill_ssh_client(struct tmate_ssh_client *client,
 
 	tmate_debug("SSH client killed (%s)", client->server_ip);
 
-	if (client->has_init_conn_fd) {
-		event_del(&client->ev_ssh);
-		client->has_init_conn_fd = false;
+	if (client->ev_ssh) {
+		event_del(client->ev_ssh);
+		event_free(client->ev_ssh);
+		client->ev_ssh = NULL;
 	}
 
 	if (client->state == SSH_READY) {
@@ -484,12 +541,11 @@ static void kill_ssh_client(struct tmate_ssh_client *client,
 	free(client);
 }
 
-static void connect_ssh_client(struct tmate_ssh_client *client)
+void connect_ssh_client(struct tmate_ssh_client *client)
 {
-	if (!client->session) {
-		client->state = SSH_INIT;
-		on_ssh_client_event(client);
-	}
+	assert(!client->session);
+	client->state = SSH_INIT;
+	on_ssh_client_event(client);
 }
 
 static void ssh_log_function(int priority, const char *function,
@@ -500,9 +556,11 @@ static void ssh_log_function(int priority, const char *function,
 
 struct tmate_ssh_client *tmate_ssh_client_alloc(struct tmate_session *session,
 						const char *server_ip)
+ 
 {
 	struct tmate_ssh_client *client;
 	client = xmalloc(sizeof(*client));
+	memset(client, 0, sizeof(*client));
 
 	ssh_set_log_callback(ssh_log_function);
 
@@ -518,11 +576,6 @@ struct tmate_ssh_client *tmate_ssh_client_alloc(struct tmate_session *session,
 	client->state = SSH_NONE;
 	client->session = NULL;
 	client->channel = NULL;
-	client->has_encoder = 0;
-
-	client->has_init_conn_fd = false;
-
-	connect_ssh_client(client);
 
 	return client;
 }
