@@ -9,10 +9,9 @@
 
 #include "tmux.h"
 
-#define tmate_debug(...) log_debug("[tmate] D " __VA_ARGS__)
-#define tmate_warn(...)  log_debug("[tmate] W " __VA_ARGS__)
-#define tmate_info(...)  log_debug("[tmate] I " __VA_ARGS__)
-#define tmate_fatal(...)    fatalx("[tmate] " __VA_ARGS__)
+#define tmate_debug(...) log_emit(LOG_DEBUG, __VA_ARGS__)
+#define tmate_info(...)  log_emit(LOG_INFO,  __VA_ARGS__)
+#define tmate_fatal(...) fatalx( __VA_ARGS__)
 
 /* tmate-msgpack.c */
 
@@ -23,7 +22,7 @@ struct tmate_encoder {
 	tmate_encoder_write_cb *ready_callback;
 	void *userdata;
 	struct evbuffer *buffer;
-	struct event ev_buffer;
+	struct event *ev_buffer;
 	bool ev_active;
 };
 
@@ -80,10 +79,12 @@ extern void unpack_array(struct tmate_unpacker *uk, struct tmate_unpacker *neste
 struct tmate_session;
 
 extern void tmate_write_header(void);
+extern void tmate_write_uname(void);
 extern void tmate_write_ready(void);
 extern void tmate_sync_layout(void);
 extern void tmate_pty_data(struct window_pane *wp, const char *buf, size_t len);
 extern int tmate_should_replicate_cmd(const struct cmd_entry *cmd);
+extern void tmate_set_val(const char *name, const char *value);
 extern void tmate_exec_cmd_args(int argc, const char **argv);
 extern void tmate_exec_cmd(struct cmd *cmd);
 extern void tmate_failed_cmd(int client_id, const char *cause);
@@ -106,7 +107,9 @@ enum tmate_ssh_client_state_types {
 	SSH_INIT,
 	SSH_CONNECT,
 	SSH_AUTH_SERVER,
-	SSH_AUTH_CLIENT,
+	SSH_AUTH_CLIENT_NONE,
+	SSH_AUTH_CLIENT_PUBKEY,
+	SSH_NEW_CHANNEL,
 	SSH_OPEN_CHANNEL,
 	SSH_BOOTSTRAP,
 	SSH_READY,
@@ -127,7 +130,6 @@ struct tmate_ssh_client {
 
 	char *server_ip;
 
-	int has_encoder;
 	int state;
 
 	/*
@@ -139,11 +141,11 @@ struct tmate_ssh_client {
 	ssh_session session;
 	ssh_channel channel;
 
-	bool has_init_conn_fd;
-	struct event ev_ssh;
+	struct event *ev_ssh;
 };
 TAILQ_HEAD(tmate_ssh_clients, tmate_ssh_client);
 
+extern void connect_ssh_client(struct tmate_ssh_client *client);
 extern struct tmate_ssh_client *tmate_ssh_client_alloc(struct tmate_session *session,
 						       const char *server_ip);
 
@@ -152,7 +154,7 @@ extern struct tmate_ssh_client *tmate_ssh_client_alloc(struct tmate_session *ses
 struct tmate_session {
 	struct event_base *ev_base;
 	struct evdns_base *ev_dnsbase;
-	struct event ev_dns_retry;
+	struct event *ev_dns_retry;
 
 	struct tmate_encoder encoder;
 	struct tmate_decoder decoder;
@@ -173,7 +175,7 @@ struct tmate_session {
 	char *passphrase;
 
 	bool reconnected;
-	struct event ev_connection_retry;
+	struct event *ev_connection_retry;
 	char *last_server_ip;
 	char *reconnection_data;
 	/*
@@ -200,6 +202,7 @@ extern void tmate_reconnect_session(struct tmate_session *session, const char *m
 /* tmate-debug.c */
 extern void tmate_print_stack_trace(void);
 extern void tmate_catch_sigsegv(void);
+extern void tmate_preload_trace_lib(void);
 
 /* tmate-msg.c */
 
