@@ -194,10 +194,6 @@ Files: compat/vis.c
 Copyright: 1987-1994, The Regents of the University of California
 License: BSD-3  
 
-Files: compat/fgetln.c
-Copyright: 1998, The NetBSD Foundation, Inc.
-License: BSD-3  
-
 Files: compat/imsg-buffer.c
        compat/imsg.c
 Copyright: 2003-2004, Henning Brauer <henning@openbsd.org>
@@ -220,6 +216,18 @@ License: ISC
 Files: cmd-set-hook.c
        hooks.c
 Copyright: 2012, Thomas Adam <thomas@xteddy.org>
+License: ISC
+
+Files: cmd-capture-pane.c
+Copyright: 2009, Jonathan Alvarado <radobobo@users.sourceforge.net>
+License: ISC
+
+Files: compat/reallocarray.c
+Copyright: 2008, Otto Moerbeek <otto@drijf.net>
+License: ISC
+
+Files: compat/fgetln.c
+Copyright: 2015, Joerg Jung <jung@openbsd.org>
 License: ISC
 
 Files: debian/*
