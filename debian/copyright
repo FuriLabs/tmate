@@ -1,4 +1,4 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: tmate
 Upstream-Contact: Nicolas Viennot <nicolas@viennot.com>
 Source: https://github.com/nviennot/tmate
