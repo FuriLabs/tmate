@@ -40,7 +40,7 @@ Last-Updated: 2019-09-24
 +given a randomly-generated token to be able to join a session.
 +.Pp
 +.Nm
-+is a modified version of tmate, and uses the same configurations such as
++is a modified version of tmux, and uses the same configurations such as
 +keybindings, color schemes etc.
  .Pp
  When
