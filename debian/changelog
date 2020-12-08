@@ -1,4 +1,4 @@
-tmate (2.4.0-2) UNRELEASED; urgency=medium
+tmate (2.4.0-2) unstable; urgency=medium
 
   [ Juan Carlos Romero ]
   * d/patches: Fix typo in 03-manpage.patch (Closes: #975232)
