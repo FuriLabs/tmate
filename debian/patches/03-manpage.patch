@@ -1,7 +1,10 @@
 Description: Improve manpage
 Author: Lucas Kanashiro <kanashiro@debian.org>
-Last-Updated: 2019-09-24
-
+Forwarded: yes, https://github.com/tmate-io/tmate/pull/228
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=975232
+Last-Updated: 2020-11-18
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 --- a/tmux.1
 +++ b/tmux.1
 @@ -19,10 +19,11 @@
@@ -40,7 +43,7 @@ Last-Updated: 2019-09-24
 +given a randomly-generated token to be able to join a session.
 +.Pp
 +.Nm
-+is a modified version of tmate, and uses the same configurations such as
++is a modified version of tmux, and uses the same configurations such as
 +keybindings, color schemes etc.
  .Pp
  When

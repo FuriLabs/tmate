@@ -1,3 +1,24 @@
+tmate (2.4.0-2) unstable; urgency=medium
+
+  [ Juan Carlos Romero ]
+  * d/patches: Fix typo in 03-manpage.patch (Closes: #975232)
+
+  [ Sergio de Almeida Cipriano Junior ]
+  * d/control:
+      - Bumped debhelper-compat to 13
+      - Bumped Standards-Version to 4.5.0
+      - Added new uploader
+      - Added Rules-Requires-Root
+  * d/watch: Bumped version to 4
+  * d/rules: Removed tag that is no longer necessary in the build process
+  * Created debian/upstream/metadata
+  * d/copyright: Updated format to use HTTPS
+  * d/patches:
+      - Forwarded patches 03 and 04
+      - Added Bug-Debian in patch 03
+
+ -- Sergio de Almeida Cipriano Junior <sergiosacj@hotmail.com.br>  Mon, 09 Nov 2020 22:12:01 -0300
+
 tmate (2.4.0-1) unstable; urgency=medium
 
   * New upstream version 2.4.0

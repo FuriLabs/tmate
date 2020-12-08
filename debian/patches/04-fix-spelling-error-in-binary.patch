@@ -1,7 +1,9 @@
 Description: Fix spelling error in binary
 Author: Lucas Kanashiro <kanashiro.duarte@gmail.com>
-Last-Updated: 2016-03-10
-
+Forwarded: yes, https://github.com/tmate-io/tmate/pull/228
+Last-Updated: 2020-11-18
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 --- a/tmate-ssh-client.c
 +++ b/tmate-ssh-client.c
 @@ -449,7 +449,7 @@
