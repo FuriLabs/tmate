@@ -1,2 +1,2 @@
 version=4
-https://github.com/tmate-io/tmate/releases/ \/.*\/([\d\.]*)\.tar\.gz
+https://github.com/tmate-io/tmate/tags/ .*/(\d\S+)\.tar\.gz
