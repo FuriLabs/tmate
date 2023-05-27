@@ -1,6 +1,6 @@
 Description: Improve manpage
 Author: Lucas Kanashiro <kanashiro@debian.org>
-Forwarded: yes, https://github.com/tmate-io/tmate/pull/228
+Applied-Upstream: https://github.com/tmate-io/tmate/pull/228
 Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=975232
 Last-Updated: 2020-11-18
 ---
