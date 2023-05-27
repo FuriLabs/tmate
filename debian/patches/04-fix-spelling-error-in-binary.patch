@@ -1,6 +1,6 @@
 Description: Fix spelling error in binary
 Author: Lucas Kanashiro <kanashiro.duarte@gmail.com>
-Forwarded: yes, https://github.com/tmate-io/tmate/pull/228
+Applied-Upstream: https://github.com/tmate-io/tmate/pull/228
 Last-Updated: 2020-11-18
 ---
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
