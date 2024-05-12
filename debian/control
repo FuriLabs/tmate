@@ -5,7 +5,7 @@ Maintainer: Lucas Kanashiro <kanashiro@debian.org>
 Uploaders: Thiago Ribeiro <thiagitosouza@gmail.com>,
            Sergio de Almeida Cipriano Junior <sergiosacj@hotmail.com.br>
 Build-Depends: debhelper-compat (= 13),
-               pkg-config,
+               pkgconf,
                libtool,
                libevent-dev,
                libncurses-dev,
