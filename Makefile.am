@@ -1,5 +1,7 @@
 # Makefile.am
 
+AUTOMAKE_OPTIONS=subdir-objects
+
 # Obvious program stuff.
 bin_PROGRAMS = tmate
 CLEANFILES = tmate.1.mdoc tmate.1.man
