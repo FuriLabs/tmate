@@ -12,7 +12,7 @@ Build-Depends: debhelper-compat (= 13),
                zlib1g-dev,
                automake,
                libssh-dev,
-               libmsgpack-dev (>= 1.1.0)
+               libmsgpack-c-dev
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Homepage: http://tmate.io/
