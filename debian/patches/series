@@ -1,4 +1,4 @@
-04-fix-spelling-error-in-binary.patch
-03-manpage.patch
-02_fix-subdirs-objects-in-makefile.patch
+0001-fix-spelling-error-in-binary.patch
+0003-manpage.patch
+0002-fix-subdirs-objects-in-makefile.patch
 0004-Fix-finding-msgpack-6.patch

@@ -1,12 +1,20 @@
-Description: Fix spelling error in binary
-Author: Lucas Kanashiro <kanashiro.duarte@gmail.com>
+From: Lucas Kanashiro <kanashiro.duarte@gmail.com>
+Date: Mon, 13 May 2024 16:29:21 -0300
+Subject: Fix spelling error in binary
+
 Applied-Upstream: https://github.com/tmate-io/tmate/pull/228
 Last-Updated: 2020-11-18
+
+Last-Updated: 2020-11-18
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+ tmate-ssh-client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tmate-ssh-client.c b/tmate-ssh-client.c
+index c52c166..661a5c8 100644
 --- a/tmate-ssh-client.c
 +++ b/tmate-ssh-client.c
-@@ -449,7 +449,7 @@
+@@ -449,7 +449,7 @@ SSH_NEW_CHANNEL:
  					ssh_get_error(session));
  			return;
  		case SSH_OK:

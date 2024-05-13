@@ -1,0 +1,25 @@
+From: Lucas Kanashiro <kanashiro.duarte@gmail.com>
+Date: Mon, 13 May 2024 16:29:21 -0300
+Subject: enable subdirs-objects in Makefile
+
+Forwarded: no
+Last-Update: 2015-07-26
+
+Add a automake option to enable subir-objects in Makefile.am.
+Last-Update: 2015-07-26
+---
+ Makefile.am | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Makefile.am b/Makefile.am
+index 3da954a..8b14e06 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,5 +1,7 @@
+ # Makefile.am
+ 
++AUTOMAKE_OPTIONS=subdir-objects
++
+ # Obvious program stuff.
+ bin_PROGRAMS = tmate
+ CLEANFILES = tmate.1.mdoc tmate.1.man

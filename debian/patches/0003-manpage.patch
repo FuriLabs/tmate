@@ -1,10 +1,18 @@
-Description: Improve manpage
-Author: Lucas Kanashiro <kanashiro@debian.org>
+From: Lucas Kanashiro <kanashiro@debian.org>
+Date: Mon, 13 May 2024 16:29:21 -0300
+Subject: Improve manpage
+
 Applied-Upstream: https://github.com/tmate-io/tmate/pull/228
 Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=975232
 Last-Updated: 2020-11-18
+
+Last-Updated: 2020-11-18
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+ tmux.1 | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/tmux.1 b/tmux.1
+index b55b368..c9b9c7c 100644
 --- a/tmux.1
 +++ b/tmux.1
 @@ -19,10 +19,11 @@
@@ -48,7 +56,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  .Pp
  When
  .Nm
-@@ -48,7 +60,8 @@
+@@ -48,7 +60,8 @@ with a single
  .Em window
  and displays it on screen.
  A status line at the bottom of the screen
