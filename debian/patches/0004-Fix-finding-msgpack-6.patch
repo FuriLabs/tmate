@@ -1,0 +1,41 @@
+From: Carlo Cabrera <30379873+carlocab@users.noreply.github.com>
+Date: Sun, 5 Mar 2023 20:58:13 +0800
+Subject: Fix finding msgpack 6+
+
+tmate FTBFS with the 6.x version of the msgpack C library. Upstream
+renamed the library from libmsgpackc to libmsgpack-c and the pkg-config
+file from msgpack.pc to msgpack-c.pc, so any checks for the presence of
+the library at build time should handle both names.
+
+Co-authored-by: Sam James <sam@gentoo.org>
+
+Origin: backport, https://github.com/tmate-io/tmate/pull/281
+---
+ configure.ac | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 028d555..3badf9e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -207,7 +207,19 @@ PKG_CHECK_MODULES(
+     LIBS="$MSGPACK_LIBS $LIBS"
+     found_msgpack=yes
+   ],
+-  found_msgpack=no
++  [
++    # msgpack.pc was renamed to msgpack-c.pc in 6.0.0.
++    PKG_CHECK_MODULES(
++      MSGPACKC,
++      msgpack-c >= 1.1.0,
++      [
++        CPPFLAGS="$MSGPACKC_CFLAGS $CPPFLAGS"
++        LIBS="$MSGPACKC_LIBS $LIBS"
++        found_msgpack=yes
++      ],
++      found_msgpack=no
++    )
++  ]
+ )
+ if test "x$found_msgpack" = xno; then
+   AC_MSG_ERROR("msgpack >= 1.1.0 not found")
