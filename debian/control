@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Lucas Kanashiro <kanashiro@debian.org>
 Uploaders: Thiago Ribeiro <thiagitosouza@gmail.com>,
-           Sergio de Almeida Cipriano Junior <sergiosacj@hotmail.com.br>
+           Sergio de Almeida Cipriano Junior <sergiosacj@riseup.net>
 Build-Depends: debhelper-compat (= 13),
                pkgconf,
                libtool,
