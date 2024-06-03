@@ -1,3 +1,26 @@
+tmate (2.4.0-3) unstable; urgency=medium
+
+  [ francisco1code ]
+  * Change Forwarded to Applied-Upstream:
+    - d/p/04-fix-spelling-error-in-binary.patch.
+    - d/p/03-manpage.patch.
+  * d/watch: Change upstream tarball path.
+
+  [ Sergio de Almeida Cipriano Junior ]
+  * d/rules: Simplify target by using execute_before_* from dh 13.
+  * d/p/0004-Fix-finding-msgpack-6.patch: Backport fix for msgpack 6+
+    Thanks to James McCoy for the bug report (Closes: #1070693).
+  * d/patches: Rename and refresh patches with gbp.
+  * Update build dependency: libmsgpack-dev -> libmsgpack-c-dev.
+  * d/rules: export DEB_BUILD_MAINT_OPTIONS before the include.
+  * d/control:
+    - Build depend on pkgconf instead of pkg-config.
+    - Bump Standards-Version from 4.5.0 to 4.7.0, no changes needed.
+    - Change my email in the Uploaders field.
+  * Add myself in the debian section of d/copyright.
+
+ -- Sergio de Almeida Cipriano Junior <sergiosacj@riseup.net>  Mon, 03 Jun 2024 08:28:26 -0300
+
 tmate (2.4.0-2) unstable; urgency=medium
 
   [ Juan Carlos Romero ]
