@@ -232,6 +232,7 @@ License: ISC
 
 Files: debian/*
 Copyright: 2015-2019, Lucas Kanashiro <kanashiro@debian.org>
+           2020-2024, Sergio de Almeida Cipriano Junior <sergiosacj@riseup.net>
 License: Expat
 
 License: BSD-2
