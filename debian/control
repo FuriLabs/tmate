@@ -2,7 +2,8 @@ Source: tmate
 Section: devel
 Maintainer: Lucas Kanashiro <kanashiro@debian.org>
 Uploaders: Thiago Ribeiro <thiagitosouza@gmail.com>,
-           Sergio de Almeida Cipriano Junior <sergiosacj@riseup.net>
+           Sergio de Almeida Cipriano Junior <sergiosacj@riseup.net>,
+           Luis Leal <luisfelipe3d@gmail.com>
 Build-Depends: debhelper-compat (= 13),
                pkgconf,
                libtool,
