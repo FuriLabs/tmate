@@ -13,7 +13,6 @@ Build-Depends: debhelper-compat (= 13),
                libssh-dev,
                libmsgpack-c-dev
 Standards-Version: 4.7.0
-Rules-Requires-Root: no
 Homepage: http://tmate.io/
 Vcs-Git: https://salsa.debian.org/debian/tmate.git
 Vcs-Browser: https://salsa.debian.org/debian/tmate
