@@ -1,3 +1,16 @@
+tmate (2.4.0-4) unstable; urgency=medium
+
+  [ Sergio de Almeida Cipriano Junior ]
+  * Add Salsa CI file.
+
+  [ Luis Leal ]
+  * d/control: Add myself as uploader.
+  * d/control: Remove Priority fields, no longer needed.
+  * d/control: Remove Rules-Requires-Root fields, no longer needed.
+  * My first contribution!
+
+ -- Luis Leal <luisfelipe3d@gmail.com>  Fri, 14 Aug 2026 17:34:54 -0300
+
 tmate (2.4.0-3) unstable; urgency=medium
 
   [ francisco1code ]
