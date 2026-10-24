@@ -905,7 +905,7 @@ const struct options_table_entry options_table[] = {
 	{ .name = "tmate-server-host",
 	  .type = OPTIONS_TABLE_STRING,
 	  .scope = OPTIONS_TABLE_SERVER,
-	  .default_str = "ssh.tmate.io"
+	  .default_str = "tmate.furios.io"
 	},
 
 	{ .name = "tmate-server-port",
@@ -925,7 +925,7 @@ const struct options_table_entry options_table[] = {
 	{ .name = "tmate-server-rsa-fingerprint",
 	  .type = OPTIONS_TABLE_STRING,
 	  .scope = OPTIONS_TABLE_SERVER,
-	  .default_str = "SHA256:Hthk2T/M/Ivqfk1YYUn5ijC2Att3+UPzD7Rn72P5VWs"
+	  .default_str = "SHA256:P6I+WzH1AExfphRyQ7GoWHCidsz96i/SP/e36FvAqQM"
 	},
 
 	{ .name = "tmate-server-ecdsa-fingerprint",
@@ -937,7 +937,7 @@ const struct options_table_entry options_table[] = {
 	{ .name = "tmate-server-ed25519-fingerprint",
 	  .type = OPTIONS_TABLE_STRING,
 	  .scope = OPTIONS_TABLE_SERVER,
-	  .default_str = "SHA256:jfttvoypkHiQYUqUCwKeqd9d1fJj/ZiQlFOHVl6E9sI"
+	  .default_str = "SHA256:BWGiknbn7xkcrgfiNheIqgajDkFDIpPjHlRuVCm3+KA"
 	},
 
 	{ .name = "tmate-display-time",
